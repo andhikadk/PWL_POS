@@ -1,24 +1,75 @@
-@extends('layouts.app')
-
-{{-- Customize layout sections --}}
-
-@section('subtitle', 'User')
-@section('content_header_title', 'Home')
-@section('content_header_subtitle', 'User')
+@extends('layouts.template')
 
 @section('content')
-  <div class="container">
-    <div class="card">
-      <div class="card-header">Manage User</div>
-      <div class="card-body">
-        <a href="{{ url('/user/create') }}" class="btn btn-primary mb-3">Tambah User</a>
-        {{ $dataTable->table() }}
+  <div class="card card-outline card-primary">
+    <div class="card-header">
+      <h3 class="card-title">{{ $page->title }}</h3>
+      <div class="card-tools">
+        <a class="btn btn-sm btn-primary mt-1" href="{{ url('user/create') }}">Tambah</a>
       </div>
     </div>
-  </div>
+    <div class="card-body">
+      @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+      @endif
+      @if (session('error'))
+        <div class="alert alert-error">{{ session('error') }}</div>
+      @endif
+      <table class="table-bordered table-striped table-hover table-sm table" id="table_user">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Nama</th>
+            <th>Level
+              Pengguna</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
   </div>
 @endsection
 
-@push('scripts')
-  {{ $dataTable->scripts() }}
+@push('css')
+@endpush
+@push('js')
+  <script>
+    $(document).ready(function() {
+      var dataUser = $('#table_user').DataTable({
+        serverSide: true,
+        ajax: {
+          "url": "{{ url('user/list') }}",
+          "dataType": "json",
+          "type": "POST"
+        },
+        columns: [{
+          data: "DT_RowIndex",
+          className: "text-center",
+          orderable: false,
+          searchable: false
+        }, {
+          data: "username",
+          className: "",
+          orderable: true,
+          searchable: true
+        }, {
+          data: "nama",
+          className: "",
+          orderable: true,
+          searchable: true
+        }, {
+          data: "level.level_nama",
+          className: "",
+          orderable: false,
+          searchable: false
+        }, {
+          data: "aksi",
+          className: "",
+          orderable: false,
+          searchable: false
+        }]
+      });
+    });
+  </script>
 @endpush
