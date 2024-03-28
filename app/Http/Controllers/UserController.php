@@ -3,59 +3,61 @@
 namespace App\Http\Controllers;
 
 use App\Models\UserModel;
+use App\Models\LevelModel;
 use Illuminate\Http\Request;
+use App\DataTables\UserDataTable;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(UserDataTable $dataTable)
     {
-        $user = UserModel::with('level')->get();
-        return view('user', ['data' => $user]);
+        return $dataTable->render('user.index');
     }
 
-    public function tambah()
+    public function create()
     {
-        return view('user_tambah');
+        $level = LevelModel::all();
+        return view('user.create', compact('level'));
     }
 
-    public function tambah_simpan(Request $request)
+    public function store(Request $request)
     {
         UserModel::create([
+            'level_id' => $request->level_id,
             'username' => $request->username,
             'nama' => $request->nama,
             'password' => Hash::make($request->password),
-            'level_id' => $request->level_id
         ]);
-
         return redirect('/user');
     }
 
-    public function ubah($id)
+    public function show($id)
     {
         $user = UserModel::find($id);
-        return view('user_ubah', ['data' => $user]);
+        return view('user.show', compact('user'));
     }
 
-    public function ubah_simpan($id, Request $request)
+    public function edit($id)
     {
         $user = UserModel::find($id);
+        return view('user.edit', compact('user'));
+    }
 
+    public function update(Request $request, $id)
+    {
+        $user = UserModel::find($id);
+        $user->level_id = $request->level_id;
         $user->username = $request->username;
         $user->nama = $request->nama;
         $user->password = Hash::make($request->password);
-        $user->level_id = $request->level_id;
-
         $user->save();
-
         return redirect('/user');
     }
 
-    public function hapus($id)
+    public function destroy($id)
     {
-        $user = UserModel::find($id);
-        $user->delete();
-
+        UserModel::destroy($id);
         return redirect('/user');
     }
 }

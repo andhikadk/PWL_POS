@@ -110,8 +110,8 @@ return [
     */
 
     'preloader' => [
-        'enabled' => false,
-        'mode' => 'fullscreen',
+        'enabled' => true,
+        'mode' => 'cwrapper',
         'img' => [
             'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
             'alt' => 'AdminLTE Preloader Image',
@@ -305,6 +305,11 @@ return [
             'text' => 'Kategori',
             'url' => 'kategori',
             'icon' => 'fas fa-fw fa-clipboard-list',
+        ],
+        [
+            'text' => 'User',
+            'url' => 'user',
+            'icon' => 'fas fa-fw fa-user',
         ],
     ],
 
