@@ -83,7 +83,7 @@
           orderable: false,
           searchable: false
         }, {
-          data: "aksi",
+          data: "action",
           className: "",
           orderable: false,
           searchable: false

@@ -38,7 +38,7 @@ class UserController extends Controller
 
         return DataTables::of($users)
             ->addIndexColumn()
-            ->addColumn('aksi', function ($user) {
+            ->addColumn('action', function ($user) {
                 $btn  = '<a href="' . url('/user/' . $user->user_id) . '"class="btn btn-info btn-sm">Detail</a> ';
                 $btn .= '<a href="' . url('/user/' . $user->user_id . '/edit') . '"class="btn btn-warning btn-sm">Edit</a> ';
                 $btn .= '<form class="d-inline-block" method="POST" action="' .
@@ -47,7 +47,7 @@ class UserController extends Controller
                     '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakit menghapus data ini?\');">Hapus</button></form>';
                 return $btn;
             })
-            ->rawColumns(['aksi'])
+            ->rawColumns(['action'])
             ->make(true);
     }
 

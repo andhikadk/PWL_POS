@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\UserModel;
+use App\Models\LevelModel;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -12,7 +12,7 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class UserDataTable extends DataTable
+class LevelDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -27,7 +27,7 @@ class UserDataTable extends DataTable
     /**
      * Get the query source of dataTable.
      */
-    public function query(UserModel $model): QueryBuilder
+    public function query(LevelModel $model): QueryBuilder
     {
         return $model->newQuery();
     }
@@ -37,7 +37,7 @@ class UserDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-            ->setTableId('user-table')
+            ->setTableId('level-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
             //->dom('Bfrtip')
@@ -58,10 +58,9 @@ class UserDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('user_id'),
             Column::make('level_id'),
-            Column::make('username'),
-            Column::make('nama'),
+            Column::make('level_kode'),
+            Column::make('level_nama'),
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)
@@ -73,6 +72,6 @@ class UserDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'User_' . date('YmdHis');
+        return 'Level_' . date('YmdHis');
     }
 }
