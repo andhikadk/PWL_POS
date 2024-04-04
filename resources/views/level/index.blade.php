@@ -30,7 +30,7 @@
                   <option value="{{ $item->level_kode }}">{{ $item->level_kode }}</option>
                 @endforeach
               </select>
-              <small class="form-text text-muted">Level pengguna</small>
+              <small class="form-text text-muted">Level kode</small>
             </div>
           </div>
         </div>
