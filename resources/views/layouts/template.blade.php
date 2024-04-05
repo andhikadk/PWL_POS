@@ -22,7 +22,7 @@
   @stack('css')
 </head>
 
-<body class="hold-transition sidebar-mini">
+<body class="hold-transition layout-fixed layout-navbar-fixed">
   <!-- Site wrapper -->
   <div class="wrapper">
     <!-- Navbar -->
