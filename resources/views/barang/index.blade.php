@@ -9,12 +9,7 @@
       </div>
     </div>
     <div class="card-body">
-      @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-      @endif
-      @if (session('error'))
-        <div class="alert alert-error">{{ session('error') }}</div>
-      @endif
+      @include('components.alert')
       <div class="row">
         <div class="col-md-12">
           <div class="form-group row">
@@ -63,47 +58,48 @@
             d.kategori_id = $('#kategori_id').val();
           }
         },
+        order: [
+          [0, 'desc']
+        ],
         columns: [{
-          data: "DT_RowIndex",
-          className: "text-center",
-          orderable: false,
-          searchable: false
-        }, {
-          data: "kategori.kategori_nama",
-          className: "",
-          orderable: false,
-          searchable: false
-        }, {
-          data: "barang_nama",
-          className: "",
-          orderable: true,
-          searchable: true
-        }, {
-          data: "barang_kode",
-          className: "",
-          orderable: true,
-          searchable: true
-        }, {
-          data: "harga_beli",
-          className: "",
-          orderable: false,
-          searchable: false
-        }, {
-          data: "harga_jual",
-          className: "",
-          orderable: false,
-          searchable: false
-        }, {
-          data: "action",
-          className: "",
-          orderable: false,
-          searchable: false
-        }]
+            data: "barang_id",
+            className: "text-center",
+            width: "5%",
+          },
+          {
+            data: "kategori.kategori_nama",
+            orderable: false,
+          },
+          {
+            data: "barang_kode",
+          },
+          {
+            data: "barang_nama",
+          },
+          {
+            data: "harga_beli",
+            className: "text-right",
+            render: $.fn.dataTable.render.number('.', ',', 0, 'Rp'),
+          },
+          {
+            data: "harga_jual",
+            className: "text-right",
+            render: $.fn.dataTable.render.number('.', ',', 0, 'Rp'),
+          },
+          {
+            data: 'action',
+            className: 'text-center',
+            width: "15%",
+            orderable: false,
+            searchable: false
+          }
+        ],
       });
 
       $('#kategori_id').on('change', function() {
         dataBarang.ajax.reload();
       });
     });
+  </script>
   </script>
 @endpush

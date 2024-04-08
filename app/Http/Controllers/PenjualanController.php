@@ -91,6 +91,8 @@ class PenjualanController extends Controller
             'pembeli' => 'required|string|max:50',
             'penjualan_tanggal' => 'required|date',
             'barang' => 'required|array',
+            'jumlah' => 'required|array',
+            'harga'
         ]);
 
         $kode_penjualan_terakhir = PenjualanModel::select('penjualan_kode')
@@ -98,9 +100,9 @@ class PenjualanController extends Controller
             ->first();
 
         if (!$kode_penjualan_terakhir) {
-            $kode_penjualan = 'PJ0001';
+            $kode_penjualan = 'JL0001';
         } else {
-            $kode_penjualan = 'PJ' . sprintf('%05d', substr($kode_penjualan_terakhir->penjualan_kode, 2) + 1);
+            $kode_penjualan = 'JL' . sprintf('%05d', substr($kode_penjualan_terakhir->penjualan_kode, 2) + 1);
         }
 
         PenjualanModel::create([
@@ -110,6 +112,19 @@ class PenjualanController extends Controller
             'pembeli' => $request->pembeli,
             'harga_total' => $request->harga_total
         ]);
+
+        $penjualan_id = PenjualanModel::select('penjualan_id')
+            ->where('penjualan_kode', $kode_penjualan)
+            ->first();
+
+        for ($i = 0; $i < count($request->barang); $i++) {
+            PenjualanDetailModel::create([
+                'penjualan_id' => $penjualan_id->penjualan_id,
+                'barang_id' => $request->barang[$i],
+                'jumlah' => $request->jumlah[$i],
+                'harga' => $request->harga[$i]
+            ]);
+        }
 
         return redirect('/penjualan')->with('success', 'Data penjualan berhasil ditambahkan');
     }

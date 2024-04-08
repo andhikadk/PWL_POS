@@ -9,16 +9,7 @@
       </div>
     </div>
     <div class="card-body">
-      @if (session('success'))
-        <div class="alert alert-success">
-          {{ session('success') }}
-        </div>
-      @endif
-      @if (session('error'))
-        <div class="alert alert-danger">
-          {{ session('error') }}
-        </div>
-      @endif
+      @include('components.alert')
       <div class="row">
         <div class="col-md-12">
           <div class="form-group row">
@@ -30,7 +21,7 @@
                   <option value="{{ $item->level_kode }}">{{ $item->level_kode }}</option>
                 @endforeach
               </select>
-              <small class="form-text text-muted">Level kode</small>
+              <small class="form-text text-muted">Kode Level</small>
             </div>
           </div>
         </div>
@@ -63,21 +54,24 @@
             d.level_kode = $("#level_kode").val();
           }
         },
+        order: [
+          [0, 'desc']
+        ],
         columns: [{
             data: 'level_id',
-            name: 'level_id'
+            className: "text-center",
+            width: "5%",
           },
           {
             data: 'level_kode',
-            name: 'level_kode'
           },
           {
             data: 'level_nama',
-            name: 'level_nama'
           },
           {
             data: 'action',
-            name: 'action',
+            className: 'text-center',
+            width: "15%",
             orderable: false,
             searchable: false
           }

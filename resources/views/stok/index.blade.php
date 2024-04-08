@@ -9,12 +9,7 @@
       </div>
     </div>
     <div class="card-body">
-      @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-      @endif
-      @if (session('error'))
-        <div class="alert alert-error">{{ session('error') }}</div>
-      @endif
+      @include('components.alert')
       <div class="row">
         <div class="col-md-12">
           <div class="form-group row">
@@ -35,7 +30,7 @@
         <thead>
           <tr>
             <th>ID</th>
-            <th>Stok</th>
+            <th>Barang</th>
             <th>User</th>
             <th>Stok Tanggal</th>
             <th>Stok Jumlah</th>
@@ -62,26 +57,26 @@
             d.user_id = $('#user_id').val();
           }
         },
+        order: [
+          [0, 'desc']
+        ],
         columns: [{
-          data: "DT_RowIndex",
+          data: 'stok_id',
           className: "text-center",
-          orderable: false,
-          searchable: false
+          width: "5%",
         }, {
           data: "barang.barang_nama",
-          className: "",
+          orderable: false,
         }, {
           data: "user.nama",
-          className: "",
         }, {
           data: "stok_tanggal",
-          className: "",
         }, {
           data: "stok_jumlah",
-          className: "",
         }, {
-          data: "action",
-          className: "",
+          data: 'action',
+          className: 'text-center',
+          width: "15%",
           orderable: false,
           searchable: false
         }]

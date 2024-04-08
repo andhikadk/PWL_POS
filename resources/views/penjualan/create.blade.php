@@ -191,6 +191,8 @@
 
           // add hidden input fields for each item
           html += '<input type="hidden" name="barang[]" value="' + item.barang_id + '">';
+          html += '<input type="hidden" name="jumlah[]" value="' + item.jumlah + '">';
+          html += '<input type="hidden" name="harga[]" value="' + item.harga + '">';
         });
         $('#list-barang').html(html);
 

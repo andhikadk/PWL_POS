@@ -7,7 +7,6 @@ use App\Http\Controllers\LevelController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\PenjualanController;
-use App\Http\Controllers\PenjualanDetailController;
 use App\Http\Controllers\WelcomeController;
 
 /*
@@ -88,5 +87,3 @@ Route::group(['prefix' => 'penjualan'], function () {
     Route::put('/{id}', [PenjualanController::class, 'update']);
     Route::delete('/{id}', [PenjualanController::class, 'destroy']);
 });
-
-Route::get('/penjualan-detail', [PenjualanDetailController::class, 'index']);

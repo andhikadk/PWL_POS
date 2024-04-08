@@ -9,12 +9,7 @@
       </div>
     </div>
     <div class="card-body">
-      @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-      @endif
-      @if (session('error'))
-        <div class="alert alert-error">{{ session('error') }}</div>
-      @endif
+      @include('components.alert')
       <div class="row">
         <div class="col-md-12">
           <div class="form-group row">
@@ -26,7 +21,7 @@
                   <option value="{{ $item->user_id }}">{{ $item->nama }}</option>
                 @endforeach
               </select>
-              <small class="form-text text-muted">User Penjualan</small>
+              <small class="form-text text-muted">User</small>
             </div>
           </div>
         </div>
@@ -64,32 +59,34 @@
             d.user_id = $('#user_id').val();
           }
         },
+        order: [
+          [0, 'desc']
+        ],
         columns: [{
-          data: "DT_RowIndex",
+          data: "penjualan_id",
           className: "text-center",
-          orderable: false,
-          searchable: false
+          width: "5%",
         }, {
           data: "user.nama",
-          className: "",
+          orderable: false
         }, {
           data: "pembeli",
-          className: "",
         }, {
           data: "penjualan_kode",
-          className: "",
         }, {
           data: "penjualan_tanggal",
-          className: "",
         }, {
           data: "total_barang",
-          className: "",
+          orderable: false
         }, {
           data: "total_harga",
-          className: "",
+          className: "text-right",
+          render: $.fn.dataTable.render.number('.', ',', 0, 'Rp'),
+          orderable: false
         }, {
-          data: "action",
-          className: "",
+          data: 'action',
+          className: 'text-center',
+          width: "15%",
           orderable: false,
           searchable: false
         }]

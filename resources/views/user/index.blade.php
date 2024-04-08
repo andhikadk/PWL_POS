@@ -9,12 +9,7 @@
       </div>
     </div>
     <div class="card-body">
-      @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-      @endif
-      @if (session('error'))
-        <div class="alert alert-error">{{ session('error') }}</div>
-      @endif
+      @include('components.alert')
       <div class="row">
         <div class="col-md-12">
           <div class="form-group row">
@@ -26,7 +21,7 @@
                   <option value="{{ $item->level_id }}">{{ $item->level_nama }}</option>
                 @endforeach
               </select>
-              <small class="form-text text-muted">Level Pengguna</small>
+              <small class="form-text text-muted">Level User</small>
             </div>
           </div>
         </div>
@@ -35,10 +30,9 @@
         <thead>
           <tr>
             <th>ID</th>
+            <th>Level</th>
             <th>Username</th>
             <th>Nama</th>
-            <th>Level
-              Pengguna</th>
             <th>Aksi</th>
           </tr>
         </thead>
@@ -62,29 +56,24 @@
             d.level_id = $('#level_id').val();
           }
         },
+        order: [
+          [0, 'desc']
+        ],
         columns: [{
-          data: "DT_RowIndex",
+          data: 'user_id',
           className: "text-center",
-          orderable: false,
-          searchable: false
-        }, {
-          data: "username",
-          className: "",
-          orderable: true,
-          searchable: true
-        }, {
-          data: "nama",
-          className: "",
-          orderable: true,
-          searchable: true
+          width: "5%",
         }, {
           data: "level.level_nama",
-          className: "",
-          orderable: false,
-          searchable: false
+          orderable: false
         }, {
-          data: "action",
-          className: "",
+          data: "nama",
+        }, {
+          data: "username",
+        }, {
+          data: 'action',
+          className: 'text-center',
+          width: "15%",
           orderable: false,
           searchable: false
         }]
