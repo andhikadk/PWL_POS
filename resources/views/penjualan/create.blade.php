@@ -2,41 +2,28 @@
 
 @section('content')
   <div class="row">
-    <div class="col-6">
+    <div class="col-12 col-md-6">
       <div class="card card-outline card-primary">
         <div class="card-header">
           <h3 class="card-title">Data Barang</h3>
           <div class="card-tools"></div>
         </div>
-        <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
-          <table class="table-bordered table">
+        <div class="card-body" style="overflow-y: auto;">
+          <table class="table-bordered table-sm table" id="table_barang">
             <thead>
               <tr>
-                <th>No</th>
+                <th>ID</th>
                 <th>Nama Barang</th>
                 <th>Harga Jual</th>
+                <th>Stok</th>
                 <th>Aksi</th>
               </tr>
             </thead>
-            <tbody>
-              @foreach ($barang as $item)
-                <tr>
-                  <td>{{ $loop->iteration }}</td>
-                  <td>{{ $item->barang_nama }}</td>
-                  <td>{{ $item->harga_jual }}</td>
-                  <td>
-                    <a id="{{ $item->barang_id }}" href="javascript:void(0)" data-nama="{{ $item->barang_nama }}"
-                      data-harga="{{ $item->harga_jual }}" data-barang="{{ $item->barang_id }}"
-                      class="btn btn-primary btn-sm">Tambah</a>
-                  </td>
-                </tr>
-              @endforeach
-            </tbody>
           </table>
         </div>
       </div>
     </div>
-    <div class="col-6">
+    <div class="col-12 col-md-6">
       <div class="card card-outline card-primary">
         <div class="card-header">
           <h3 class="card-title">{{ $page->title }}</h3>
@@ -79,27 +66,30 @@
                 @enderror
               </div>
             </div>
-            {{-- tempat untuk menampung list barang yang sudah dipilih --}}
             <div class="form-group row">
-              {{-- kosong jika tidak ada barang yang dipilih --}}
-              {{-- tampilkan table head --}}
-              <div class="col-4"><strong>Nama Barang</strong></div>
-              <div class="col-2"><strong>Jumlah</strong></div>
-              <div class="col-3"><strong>Harga</strong></div>
-              <div class="col-3"><strong>Aksi</strong></div>
-              {{-- tampilkan list barang yang sudah dipilih --}}
-              <div class="col-12" id="list-barang">
-                {{-- Tampilkan tidak ada barang yang dipilih --}}
-                <div class="row">
-                  <div class="alert alert-secondary col-12 mt-2 text-center" role="alert">Silakan cari barang terlebih
-                    dahulu</div>
-                </div>
-              </div>
+              <table class="table-bordered table-striped table-sm table">
+                <thead>
+                  <tr>
+                    <th>Nama Barang</th>
+                    <th>Jumlah</th>
+                    <th class="text-center">Harga</th>
+                    <th class="text-center">Subtotal</th>
+                    <th class="text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="list-barang">
+                  <tr>
+                    <td colspan="5" class="text-center">
+                      <div class="alert alert-secondary mt-2" role="alert">Silakan cari barang terlebih dahulu</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
             <div class="form-group row">
               <label class="col-2 control-label col-form-label">Harga Total</label>
               <div class="col-10">
-                <input type="number" class="form-control" id="harga_total" name="harga_total"
+                <input type="text" class="form-control" id="harga_total" name="harga_total"
                   value="{{ old('harga_total', 0) }}" required readonly>
                 @error('harga_total')
                   <small class="form-text text-danger">{{ $message }}</small>
@@ -124,79 +114,106 @@
 @push('js')
   <script>
     $(document).ready(function() {
-      // variabel untuk menampung list barang yang sudah dipilih
+      var dataBarang = $('#table_barang').DataTable({
+        serverSide: true,
+        ajax: {
+          "url": "{{ url('penjualan/list-barang') }}",
+          "dataType": "json",
+          "type": "POST",
+        },
+        order: [
+          [0, 'desc']
+        ],
+        columns: [{
+          data: "barang.barang_id",
+          className: "text-center",
+          width: "10",
+        }, {
+          data: "barang.barang_nama",
+          width: "100",
+        }, {
+          data: "barang.harga_jual",
+          render: $.fn.dataTable.render.number('.', ',', 0, 'Rp'),
+          width: "50",
+        }, {
+          data: "stok_jumlah",
+          orderable: false,
+          width: "20",
+        }, {
+          data: 'action',
+          className: 'text-center',
+          width: "50",
+          orderable: false,
+          searchable: false
+        }]
+      });
+
       let listBarang = [];
       let hargaTotal = 0;
 
-      // fungsi untuk memilih barang
-      function pilihBarang(barang_id, barang_nama, harga) {
-        // cek apakah barang sudah ada di list
+      function pilihBarang(barang_id, barang_nama, harga, stok) {
         let index = listBarang.findIndex(x => x.barang_id == barang_id);
 
-        // jika barang sudah ada di list
+        if (stok === 0) {
+          alert('Stok barang sudah habis');
+          return;
+        }
+
         if (index >= 0) {
-          // tambahkan jumlah barang
+          if (listBarang[index].jumlah >= stok) {
+            alert('Stok barang sudah mencapai batas');
+            return;
+          }
           listBarang[index].jumlah += 1;
-          // update harga total
           hargaTotal += harga;
-          $('#harga_total').val(hargaTotal);
+          $('#harga_total').val(formatHarga(hargaTotal));
         } else {
-          // jika barang belum ada di list
-          // tambahkan barang ke list
           listBarang.push({
             barang_id: barang_id,
             barang_nama: barang_nama,
             harga: harga,
             jumlah: 1
           });
-          // update harga total
           hargaTotal += harga;
-          $('#harga_total').val(hargaTotal);
+          $('#harga_total').val(formatHarga(hargaTotal));
         }
 
-        // tampilkan list barang yang sudah dipilih
         tampilkanListBarang();
       }
 
-      // fungsi untuk menghapus barang
       function hapusBarang(index) {
         let item = listBarang[index];
 
-        // kurangi harga total
-        $('#harga_total').val(parseInt($('#harga_total').val()) - item.harga);
+        hargaTotal -= item.harga;
+        $('#harga_total').val(formatHarga(hargaTotal));
 
-        // jika jumlah barang hanya 1, hapus barang dari list
         if (item.jumlah === 1) {
           listBarang.splice(index, 1);
         } else {
-          // jika jumlah barang lebih dari 1, kurangi jumlah barang
           item.jumlah -= 1;
         }
 
-        // tampilkan list barang yang sudah dipilih
         tampilkanListBarang();
       }
 
-      // fungsi untuk menampilkan list barang yang sudah dipilih
       function tampilkanListBarang() {
         let html = '';
         listBarang.forEach(function(item, index) {
-          html += '<div class="row mb-2">';
-          html += '<div class="col-4">' + item.barang_nama + '</div>';
-          html += '<div class="col-2">' + item.jumlah + '</div>';
-          html += '<div class="col-3">' + item.harga + '</div>';
-          html += '<div class="col-3"><a id="delete-' + item.barang_id +
-            '" href="javascript:void(0)" class="btn btn-danger btn-sm">Hapus</a></div>';
-          html += '</div>';
+          html += '<tr>';
+          html += '<td>' + item.barang_nama + '</td>';
+          html += '<td>' + item.jumlah + '</td>';
+          html += '<td class="text-right">' + formatHarga(item.harga) + '</td>';
+          html += '<td class="text-right">' + formatHarga(item.harga * item.jumlah) + '</td>';
+          html += '<td class="text-center"><a id="delete-' + item.barang_id +
+            '" href="javascript:void(0)" class="btn btn-danger btn-sm">Hapus</a></td>';
+          html += '</tr>';
 
-          // add hidden input fields for each item
           html += '<input type="hidden" name="barang[]" value="' + item.barang_id + '">';
           html += '<input type="hidden" name="jumlah[]" value="' + item.jumlah + '">';
           html += '<input type="hidden" name="harga[]" value="' + item.harga + '">';
         });
         $('#list-barang').html(html);
 
-        // bind event click untuk tombol hapus
         listBarang.forEach(function(item, index) {
           $('#delete-' + item.barang_id).click(function() {
             hapusBarang(index);
@@ -204,14 +221,17 @@
         });
       }
 
-      // ketika tombol pilih di klik
-      $('a.btn-primary').click(function() {
-        // ambil data dari tombol yang di klik
+      function formatHarga(harga) {
+        return 'Rp' + harga.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+      }
+
+      $(document).on('click', 'a.btn-primary', function() {
         let barang_id = $(this).data('barang');
         let barang_nama = $(this).data('nama');
         let harga = $(this).data('harga');
+        let stok = $(this).data('stok');
 
-        pilihBarang(barang_id, barang_nama, harga);
+        pilihBarang(barang_id, barang_nama, harga, stok);
       });
     });
   </script>

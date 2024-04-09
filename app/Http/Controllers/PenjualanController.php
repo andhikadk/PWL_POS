@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\StokModel;
 use App\Models\UserModel;
 use App\Models\BarangModel;
 use Illuminate\Http\Request;
@@ -48,7 +49,7 @@ class PenjualanController extends Controller
             ->addColumn('total_harga', function ($penjualan) {
                 $total_harga = PenjualanDetailModel::select('penjualan_id')
                     ->where('penjualan_id', $penjualan->penjualan_id)
-                    ->selectRaw('sum(harga) as total_harga')
+                    ->selectRaw('sum(harga * jumlah) as total_harga')
                     ->groupBy('penjualan_id')
                     ->first();
                 return $total_harga ? $total_harga->total_harga : 0;
@@ -60,6 +61,23 @@ class PenjualanController extends Controller
                     url('/penjualan/' . $penjualan->penjualan_id) . '">'
                     . csrf_field() . method_field('DELETE') .
                     '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakit menghapus data ini?\');">Hapus</button></form>';
+                return $btn;
+            })
+            ->rawColumns(['action'])
+            ->make(true);
+    }
+
+    public function barang(Request $request)
+    {
+        $barang = StokModel::select('stok_id', 'm_barang.barang_id', 'stok_jumlah')
+            ->with('barang');
+
+        return DataTables::of($barang)
+            ->addIndexColumn()
+            ->addColumn('action', function ($barang) {
+                $btn = '<a id="' . $barang->barang->barang_id . '" href="javascript:void(0)"' .
+                    ' data-nama="' . $barang->barang->barang_nama . '" data-harga="' . $barang->barang->harga_jual . '"' . '" data-stok="' . $barang->stok_jumlah . '"' .
+                    ' data-barang="' . $barang->barang->barang_id . '" class="btn btn-primary btn-sm">Tambah</a>';
                 return $btn;
             })
             ->rawColumns(['action'])
@@ -78,7 +96,7 @@ class PenjualanController extends Controller
         ];
 
         $user = UserModel::all();
-        $barang = BarangModel::all();
+        $barang = StokModel::with('barang')->get();
         $activeMenu = 'penjualan';
 
         return view('penjualan.create', ['breadcrumb' => $breadcrumb, 'page' => $page, 'user' => $user, 'barang' => $barang, 'activeMenu' => $activeMenu]);
@@ -92,7 +110,7 @@ class PenjualanController extends Controller
             'penjualan_tanggal' => 'required|date',
             'barang' => 'required|array',
             'jumlah' => 'required|array',
-            'harga'
+            'harga' => 'required|array',
         ]);
 
         $kode_penjualan_terakhir = PenjualanModel::select('penjualan_kode')
@@ -110,7 +128,6 @@ class PenjualanController extends Controller
             'penjualan_kode' => $kode_penjualan,
             'penjualan_tanggal' => $request->penjualan_tanggal,
             'pembeli' => $request->pembeli,
-            'harga_total' => $request->harga_total
         ]);
 
         $penjualan_id = PenjualanModel::select('penjualan_id')
@@ -124,6 +141,7 @@ class PenjualanController extends Controller
                 'jumlah' => $request->jumlah[$i],
                 'harga' => $request->harga[$i]
             ]);
+            StokModel::where('barang_id', $request->barang[$i])->decrement('stok_jumlah', $request->jumlah[$i]);
         }
 
         return redirect('/penjualan')->with('success', 'Data penjualan berhasil ditambahkan');
@@ -175,20 +193,49 @@ class PenjualanController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'kategori_id' => 'required|integer',
-            'penjualan_kode' => 'required|string|min:3',
-            'penjualan_nama' => 'required|string|max:100',
-            'harga_beli' => 'required|numeric',
-            'harga_jual' => 'required|numeric'
+            'user_id' => 'required|integer',
+            'pembeli' => 'required|string|max:50',
+            'penjualan_tanggal' => 'required|date',
+            'barang' => 'required|array',
+            'jumlah' => 'required|array',
+            'harga' => 'required|array',
         ]);
 
+        $kode_penjualan_terakhir = PenjualanModel::select('penjualan_kode')
+            ->orderBy('penjualan_id', 'desc')
+            ->first();
+
+        if (!$kode_penjualan_terakhir) {
+            $kode_penjualan = 'JL0001';
+        } else {
+            $kode_penjualan = 'JL' . sprintf('%05d', substr($kode_penjualan_terakhir->penjualan_kode, 2) + 1);
+        }
+
         PenjualanModel::find($id)->update([
-            'kategori_id' => $request->kategori_id,
-            'penjualan_kode' => $request->penjualan_kode,
-            'penjualan_nama' => $request->penjualan_nama,
-            'harga_beli' => $request->harga_beli,
-            'harga_jual' => $request->harga_jual
+            'user_id' => $request->user_id,
+            'penjualan_kode' => $kode_penjualan,
+            'penjualan_tanggal' => $request->penjualan_tanggal,
+            'pembeli' => $request->pembeli,
         ]);
+
+        $penjualan_id = PenjualanModel::select('penjualan_id')
+            ->where('penjualan_kode', $kode_penjualan)
+            ->first();
+
+        $penjualan_detail = PenjualanDetailModel::where('penjualan_id', $id);
+
+        foreach ($penjualan_detail->get() as $detail) {
+            $detail->delete();
+        }
+
+        for ($i = 0; $i < count($request->barang); $i++) {
+            PenjualanDetailModel::create([
+                'penjualan_id' => $penjualan_id->penjualan_id,
+                'barang_id' => $request->barang[$i],
+                'jumlah' => $request->jumlah[$i],
+                'harga' => $request->harga[$i]
+            ]);
+        }
 
         return redirect('/penjualan')->with('success', 'Data penjualan berhasil diubah');
     }
@@ -214,5 +261,13 @@ class PenjualanController extends Controller
         } catch (\Exception $e) {
             return redirect('/penjualan')->with('error', 'Data penjualan gagal dihapus karena masih terdapat tabel lain yang terkait dengan data ini');
         }
+    }
+
+    public function editPenjualan($id)
+    {
+        $penjualan = PenjualanModel::with('user')->find($id);
+        $penjualan_detail = PenjualanDetailModel::where('penjualan_id', $id)->with(['barang', 'penjualan'])->get();
+
+        return response()->json(['penjualan' => $penjualan, 'penjualan_detail' => $penjualan_detail]);
     }
 }
