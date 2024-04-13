@@ -86,6 +86,10 @@ class StokController extends Controller
             'stok_jumlah' => $request->stok_jumlah
         ]);
 
+        $barang = BarangModel::find($request->barang_id);
+        $barang->stok += $request->stok_jumlah;
+        $barang->save();
+
         return redirect('/stok')->with('success', 'Data stok berhasil ditambahkan');
     }
 
@@ -136,12 +140,19 @@ class StokController extends Controller
             'stok_jumlah' => 'required|integer'
         ]);
 
+        $oldStok = StokModel::find($id)->stok_jumlah;
+
         StokModel::find($id)->update([
             'barang_id' => $request->barang_id,
             'user_id' => $request->user_id,
             'stok_tanggal' => $request->stok_tanggal,
             'stok_jumlah' => $request->stok_jumlah
         ]);
+
+        $barang = BarangModel::find($request->barang_id);
+        $barang->stok -= $oldStok;
+        $barang->stok += $request->stok_jumlah;
+        $barang->save();
 
         return redirect('/stok')->with('success', 'Data stok berhasil diubah');
     }
@@ -156,6 +167,10 @@ class StokController extends Controller
 
         try {
             StokModel::destroy($id);
+
+            $barang = BarangModel::find($check->barang_id);
+            $barang->stok -= $check->stok_jumlah;
+            $barang->save();
 
             return redirect('/stok')->with('success', 'Data stok berhasil dihapus');
         } catch (\Exception $e) {

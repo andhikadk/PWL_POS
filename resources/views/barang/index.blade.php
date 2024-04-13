@@ -35,6 +35,7 @@
             <th>Nama Barang</th>
             <th>Harga Beli</th>
             <th>Harga Jual</th>
+            <th>Stok</th>
             <th>Aksi</th>
           </tr>
         </thead>
@@ -85,6 +86,10 @@
             data: "harga_jual",
             className: "text-right",
             render: $.fn.dataTable.render.number('.', ',', 0, 'Rp'),
+          },
+          {
+            data: "stok",
+            className: "text-center",
           },
           {
             data: 'action',

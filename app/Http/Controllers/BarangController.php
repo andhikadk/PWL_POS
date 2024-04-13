@@ -29,7 +29,7 @@ class BarangController extends Controller
 
     public function list(Request $request)
     {
-        $barang = BarangModel::select('barang_id', 'kategori_id', 'barang_kode', 'barang_nama', 'harga_beli', 'harga_jual')
+        $barang = BarangModel::select('barang_id', 'kategori_id', 'barang_kode', 'barang_nama', 'harga_beli', 'harga_jual', 'stok')
             ->with('kategori');
 
         if ($request->kategori_id) {
@@ -75,7 +75,8 @@ class BarangController extends Controller
             'barang_kode' => 'required|string|min:3|unique:m_barang,barang_kode',
             'barang_nama' => 'required|string|max:100',
             'harga_beli' => 'required|numeric',
-            'harga_jual' => 'required|numeric'
+            'harga_jual' => 'required|numeric',
+            'stok' => 'required|integer'
         ]);
 
         BarangModel::create([
@@ -83,7 +84,8 @@ class BarangController extends Controller
             'barang_kode' => $request->barang_kode,
             'barang_nama' => $request->barang_nama,
             'harga_beli' => $request->harga_beli,
-            'harga_jual' => $request->harga_jual
+            'harga_jual' => $request->harga_jual,
+            'stok' => $request->stok
         ]);
 
         return redirect('/barang')->with('success', 'Data barang berhasil ditambahkan');
@@ -133,7 +135,8 @@ class BarangController extends Controller
             'barang_kode' => 'required|string|min:3',
             'barang_nama' => 'required|string|max:100',
             'harga_beli' => 'required|numeric',
-            'harga_jual' => 'required|numeric'
+            'harga_jual' => 'required|numeric',
+            'stok' => 'required|integer'
         ]);
 
         BarangModel::find($id)->update([
@@ -141,7 +144,8 @@ class BarangController extends Controller
             'barang_kode' => $request->barang_kode,
             'barang_nama' => $request->barang_nama,
             'harga_beli' => $request->harga_beli,
-            'harga_jual' => $request->harga_jual
+            'harga_jual' => $request->harga_jual,
+            'stok' => $request->stok
         ]);
 
         return redirect('/barang')->with('success', 'Data barang berhasil diubah');

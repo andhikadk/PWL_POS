@@ -67,17 +67,16 @@ class PenjualanController extends Controller
             ->make(true);
     }
 
-    public function barang(Request $request)
+    public function barang()
     {
-        $barang = StokModel::select('stok_id', 'm_barang.barang_id', 'stok_jumlah')
-            ->with('barang');
+        $barang = BarangModel::all();
 
         return DataTables::of($barang)
             ->addIndexColumn()
             ->addColumn('action', function ($barang) {
-                $btn = '<a id="' . $barang->barang->barang_id . '" href="javascript:void(0)"' .
-                    ' data-nama="' . $barang->barang->barang_nama . '" data-harga="' . $barang->barang->harga_jual . '"' . '" data-stok="' . $barang->stok_jumlah . '"' .
-                    ' data-barang="' . $barang->barang->barang_id . '" class="btn btn-primary btn-sm">Tambah</a>';
+                $btn = '<a id="' . $barang->barang_id . '" href="javascript:void(0)"' .
+                    ' data-nama="' . $barang->barang_nama . '" data-harga="' . $barang->harga_jual . '"' . '" data-stok="' . $barang->stok . '"' .
+                    ' data-barang="' . $barang->barang_id . '" class="btn btn-primary btn-sm">Tambah</a>';
                 return $btn;
             })
             ->rawColumns(['action'])
@@ -96,10 +95,9 @@ class PenjualanController extends Controller
         ];
 
         $user = UserModel::all();
-        $barang = StokModel::with('barang')->get();
         $activeMenu = 'penjualan';
 
-        return view('penjualan.create', ['breadcrumb' => $breadcrumb, 'page' => $page, 'user' => $user, 'barang' => $barang, 'activeMenu' => $activeMenu]);
+        return view('penjualan.create', ['breadcrumb' => $breadcrumb, 'page' => $page, 'user' => $user, 'activeMenu' => $activeMenu]);
     }
 
     public function store(Request $request)
@@ -141,7 +139,7 @@ class PenjualanController extends Controller
                 'jumlah' => $request->jumlah[$i],
                 'harga' => $request->harga[$i]
             ]);
-            StokModel::where('barang_id', $request->barang[$i])->decrement('stok_jumlah', $request->jumlah[$i]);
+            BarangModel::where('barang_id', $request->barang[$i])->decrement('stok', $request->jumlah[$i]);
         }
 
         return redirect('/penjualan')->with('success', 'Data penjualan berhasil ditambahkan');
@@ -211,6 +209,12 @@ class PenjualanController extends Controller
             $kode_penjualan = 'JL' . sprintf('%05d', substr($kode_penjualan_terakhir->penjualan_kode, 2) + 1);
         }
 
+        $penjualan_detail = PenjualanDetailModel::where('penjualan_id', $id);
+
+        foreach ($penjualan_detail->get() as $detail) {
+            BarangModel::where('barang_id', $detail->barang_id)->increment('stok', $detail->jumlah);
+        }
+
         PenjualanModel::find($id)->update([
             'user_id' => $request->user_id,
             'penjualan_kode' => $kode_penjualan,
@@ -235,6 +239,7 @@ class PenjualanController extends Controller
                 'jumlah' => $request->jumlah[$i],
                 'harga' => $request->harga[$i]
             ]);
+            BarangModel::where('barang_id', $request->barang[$i])->decrement('stok', $request->jumlah[$i]);
         }
 
         return redirect('/penjualan')->with('success', 'Data penjualan berhasil diubah');
@@ -245,6 +250,7 @@ class PenjualanController extends Controller
         $penjualan_detail = PenjualanDetailModel::where('penjualan_id', $id);
 
         foreach ($penjualan_detail->get() as $detail) {
+            BarangModel::where('barang_id', $detail->barang_id)->increment('stok', $detail->jumlah);
             $detail->delete();
         }
 

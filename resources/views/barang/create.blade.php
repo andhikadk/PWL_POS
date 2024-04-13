@@ -64,6 +64,16 @@
           </div>
         </div>
         <div class="form-group row">
+          <label class="col-2 control-label col-form-label">Stok</label>
+          <div class="col-10">
+            <input type="number" class="form-control" id="stok" name="stok" value="{{ old('stok') }}"
+              required>
+            @error('stok')
+              <small class="form-text text-danger">{{ $message }}</small>
+            @enderror
+          </div>
+        </div>
+        <div class="form-group row">
           <label class="col-2 control-label col-form-label"></label>
           <div class="col-10">
             <button type="submit" class="btn btn-primary btn-sm">Simpan</button>

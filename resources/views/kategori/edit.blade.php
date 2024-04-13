@@ -12,7 +12,7 @@
           <h5><i class="icon fas fa-ban"></i> Kesalahan!</h5>
           Data yang Anda cari tidak ditemukan.
         </div>
-        <a href="{{ url('kategori') }}" class="btn btn-sm btn-default mt 2">Kembali</a>
+        <a href="{{ url('kategori') }}" class="btn btn-sm btn-default mt-2">Kembali</a>
       @else
         <form method="POST" action="{{ url('/kategori/' . $kategori->kategori_id) }}" class="form-horizontal">
           @csrf

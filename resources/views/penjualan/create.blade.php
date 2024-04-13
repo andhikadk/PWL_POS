@@ -125,18 +125,18 @@
           [0, 'desc']
         ],
         columns: [{
-          data: "barang.barang_id",
+          data: "barang_id",
           className: "text-center",
           width: "10",
         }, {
-          data: "barang.barang_nama",
+          data: "barang_nama",
           width: "100",
         }, {
-          data: "barang.harga_jual",
+          data: "harga_jual",
           render: $.fn.dataTable.render.number('.', ',', 0, 'Rp'),
           width: "50",
         }, {
-          data: "stok_jumlah",
+          data: "stok",
           orderable: false,
           width: "20",
         }, {

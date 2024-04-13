@@ -52,9 +52,9 @@
                     <tr>
                       <td>{{ $loop->iteration }}</td>
                       <td>{{ $item->barang->barang_nama }}</td>
-                      <td>{{ $item->harga }}</td>
+                      <td>{{ 'Rp' . number_format($item->harga, 0, ',', '.') }}</td>
                       <td>{{ $item->jumlah }}</td>
-                      <td>{{ $item->harga * $item->jumlah }}</td>
+                      <td>{{ 'Rp' . number_format($item->harga * $item->jumlah, 0, ',', '.') }}</td>
                     </tr>
                   @endforeach
                 </tbody>
@@ -67,7 +67,7 @@
           </tr>
         </table>
       @endempty
-      <a href="{{ url('penjualan') }}" class="btn btn-sm btn-default mt 2">Kembali</a>
+      <a href="{{ url('penjualan') }}" class="btn btn-sm btn-default mt-2">Kembali</a>
     </div>
   </div>
 @endsection

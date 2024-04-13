@@ -12,7 +12,7 @@
           <h5><i class="icon fas fa-ban"></i> Kesalahan!</h5>
           Data yang Anda cari tidak ditemukan.
         </div>
-        <a href="{{ url('barang') }}" class="btn btn-sm btn-default mt 2">Kembali</a>
+        <a href="{{ url('barang') }}" class="btn btn-sm btn-default mt-2">Kembali</a>
       @else
         <form method="POST" action="{{ url('/barang/' . $barang->barang_id) }}" class="form-horizontal">
           @csrf
@@ -68,6 +68,16 @@
               <input type="number" class="form-control" id="harga_jual" name="harga_jual"
                 value="{{ old('harga_jual', $barang->harga_jual) }}" required>
               @error('harga_jual')
+                <small class="form-text text-danger">{{ $message }}</small>
+              @enderror
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-2 control-label col-form-label">Stok</label>
+            <div class="col-10">
+              <input type="number" class="form-control" id="stok" name="stok"
+                value="{{ old('stok', $barang->stok) }}" required>
+              @error('stok')
                 <small class="form-text text-danger">{{ $message }}</small>
               @enderror
             </div>
